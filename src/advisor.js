@@ -23,9 +23,9 @@ export const microgoalSchema = {
   }, required: ['description','rationale','steps','completion']
 };
 export class AdvisorPlanner {
-  constructor({ key, fetchImpl = fetch, timeout = 30000 }) {
-    if (!key) throw new Error('Set OPENAI_API_KEY for the GPT-5.6 advisor planner');
-    this.key = key; this.fetch = fetchImpl; this.timeout = timeout; this.requests = 0; this.inputTokens = 0; this.outputTokens = 0;
+  constructor({ key, model = 'gpt-5.6-sol', fetchImpl = fetch, timeout = 30000 }) {
+    if (!key) throw new Error('Set OPENAI_API_KEY for the OpenAI advisor planner');
+    this.key = key; this.model = model; this.fetch = fetchImpl; this.timeout = timeout; this.requests = 0; this.inputTokens = 0; this.outputTokens = 0;
   }
   async propose(state, candidates, reason, signal) {
     const context = compactRequest({ state, questions: {} }).state;
@@ -38,7 +38,7 @@ export class AdvisorPlanner {
     const response = await this.fetch('https://api.openai.com/v1/responses', {
       method: 'POST', redirect: 'error', headers: { Authorization: `Bearer ${this.key}`, 'Content-Type': 'application/json' },
       signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(this.timeout)]) : AbortSignal.timeout(this.timeout),
-      body: JSON.stringify({ model: 'gpt-5.6-luna', store: false, reasoning: { effort: 'high' }, max_output_tokens: 2000,
+      body: JSON.stringify({ model: this.model, store: false, reasoning: { effort: 'high' }, max_output_tokens: 2000,
         instructions: ADVISOR_INSTRUCTIONS,
         input: JSON.stringify(input), text: { format: { type: 'json_schema', name: 'minecraft_microgoal', strict: true, schema: microgoalSchema } }
       })

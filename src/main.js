@@ -19,7 +19,7 @@ import { reviewReason, validateMicrogoal, adoptMicrogoal, completed } from './mi
 const { pathfinder, Movements } = pathfinderPackage;
 const c = config();
 const jev = new JevClient(c);
-const planner = c.openaiKey ? new AdvisorPlanner({ key: c.openaiKey }) : null;
+const planner = c.openaiKey ? new AdvisorPlanner({ key: c.openaiKey, model: c.openaiModel }) : null;
 const steering = new Steering(planner);
 mkdirSync('logs', { recursive: true });
 const logPath = `logs/run-${new Date().toISOString().replaceAll(':', '-')}.jsonl`;
@@ -55,7 +55,7 @@ function stop(reason) {
   if (stopped) return;
   stopped = true;
   lifecycle.abort(); active?.abort(); cancelMovement();
-  log('stopped', { reason, decisions, requests: jev.requests, inputTokens: jev.inputTokens, plannerRequests: planner?.requests || 0, plannerInputTokens: planner?.inputTokens || 0, plannerOutputTokens: planner?.outputTokens || 0 });
+  log('stopped', { reason, decisions, requests: jev.requests, inputTokens: jev.inputTokens, plannerModel: planner?.model || null, plannerRequests: planner?.requests || 0, plannerInputTokens: planner?.inputTokens || 0, plannerOutputTokens: planner?.outputTokens || 0 });
   saveMemory(memoryPath, memory);
   viewer?.close();
   if (bot.quit) bot.quit(reason); else bot.end(reason);

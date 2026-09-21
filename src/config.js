@@ -6,8 +6,10 @@ export function config(env = process.env) {
   }
   const auth = env.MC_AUTH || 'offline';
   if (!['offline', 'microsoft'].includes(auth)) throw new Error('MC_AUTH must be offline or microsoft');
+  const openaiModel = (env.OPENAI_MODEL || 'gpt-5.6-sol').trim();
+  if (!/^[A-Za-z0-9._:-]+$/.test(openaiModel)) throw new Error('Invalid OPENAI_MODEL');
   return {
-    openaiKey: env.OPENAI_API_KEY,
+    openaiKey: env.OPENAI_API_KEY, openaiModel,
     key: env.TYPESAFE_API_KEY, model: env.JEV_MODEL || 'jev-latest',
     worldId: env.WORLD_ID || 'lan-world',
     viewer: env.VIEWER !== '0', viewerPort: number('VIEWER_PORT', 3007, 1, 65535),

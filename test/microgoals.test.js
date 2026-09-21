@@ -56,7 +56,7 @@ test('advisor uses the requested model and strict structured responses without s
  const planner=new AdvisorPlanner({key:'test-only',fetchImpl:async(url,options)=>{
   assert.equal(url,'https://api.openai.com/v1/responses');
   const body=JSON.parse(options.body);
-  assert.equal(body.model,'gpt-5.6-luna');assert.equal(body.store,false);
+  assert.equal(body.model,'gpt-5.6-sol');assert.equal(body.store,false);
   assert.equal(body.reasoning.effort,'high');
   assert.equal(body.instructions,ADVISOR_INSTRUCTIONS);
   assert.ok(!body.instructions.includes('executable code'));
@@ -65,6 +65,16 @@ test('advisor uses the requested model and strict structured responses without s
  }});
  assert.deepEqual(await planner.propose(state,[],'initial_microgoal'),proposal);
  assert.equal(planner.requests,1);
+});
+test('advisor can switch from GPT-5.6 Sol to GPT-6 Astra without changing the planner code',async()=>{
+ const requested=[];
+ const fetchImpl=async(_url,options)=>{
+  requested.push(JSON.parse(options.body).model);
+  return Response.json({status:'completed',output:[{type:'message',content:[{type:'output_text',text:JSON.stringify(proposal)}]}]});
+ };
+ await new AdvisorPlanner({key:'test-only',model:'gpt-5.6-sol',fetchImpl}).propose(state,[],'initial');
+ await new AdvisorPlanner({key:'test-only',model:'gpt-6-astra',fetchImpl}).propose(state,[],'initial');
+ assert.deepEqual(requested,['gpt-5.6-sol','gpt-6-astra']);
 });
 test('advisor failures expose status only, and incomplete responses are rejected',async()=>{
  const failed=new AdvisorPlanner({key:'test-only',fetchImpl:async()=>new Response('secret echo',{status:401})});

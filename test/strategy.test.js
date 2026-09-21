@@ -14,5 +14,8 @@ test('configuration rejects invalid limits and unsupported authentication', () =
   assert.throws(() => config({ MC_PORT: '-1' }), /MC_PORT/);
   assert.throws(() => config({ MC_AUTH: 'invalid' }), /MC_AUTH/);
   assert.throws(() => config({ MIN_CONFIDENCE: '2' }), /MIN_CONFIDENCE/);
+  assert.throws(() => config({ OPENAI_MODEL: 'invalid model name' }), /OPENAI_MODEL/);
   assert.equal(config({ MC_PORT: '51234' }).port, 51234);
+  assert.equal(config({}).openaiModel, 'gpt-5.6-sol');
+  assert.equal(config({ OPENAI_MODEL: 'gpt-6-astra' }).openaiModel, 'gpt-6-astra');
 });
