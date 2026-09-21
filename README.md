@@ -4,7 +4,7 @@
 
 Jev is a personal side project exploring autonomous game agents. It connects to a Minecraft Java world through [Mineflayer](https://github.com/PrismarineJS/mineflayer), observes the world and its own state, chooses from a menu of implemented actions, and executes those actions without human control.
 
-The bot exposes general Minecraft interaction skills for the agent to compose toward its objective. It does not contain a fixed progression script; the current controller is deliberately open-ended and experimental. The project also includes a local browser viewer, persistent world memory, structured run logs, and an optional GPT-5.6 advisor planner for longer-term milestones.
+The bot exposes general Minecraft interaction skills for the agent to compose toward its objective. It does not contain a fixed progression script; the current controller is deliberately open-ended and experimental. The project also includes a local browser viewer, persistent world memory, structured run logs, and an optional configurable OpenAI advisor planner for longer-term milestones.
 
 **Status: experimental.** This is not a verified autonomous speedrunner. A run can get stuck, die, or fail to finish the game. The project is best treated as a research toy and an evolving side project.
 
@@ -16,7 +16,7 @@ The bot exposes general Minecraft interaction skills for the agent to compose to
 - Uses pathfinding, inventory checks, safety checks, cooldowns, and action timeouts.
 - Lets the agent compose generic skills instead of following a hard-coded resource or portal route.
 - Persists landmarks, routes, milestones, failures, and action outcomes between runs.
-- Optionally asks GPT-5.6 advisor to suggest meaningful multi-action milestones.
+- Optionally asks GPT-5.6 Sol, GPT-6 Astra, or another configured OpenAI model to suggest meaningful multi-action milestones.
 - Serves a reconstructed first-person view and live bot state at `http://localhost:3007`.
 - Records JSONL logs without writing API keys to disk.
 
@@ -102,6 +102,7 @@ All runtime settings are read from `.env`. The complete template is in [.env.exa
 | --- | --- | --- |
 | `TYPESAFE_API_KEY` | — | Required for Jev action decisions |
 | `OPENAI_API_KEY` | — | Enables the optional advisor planner |
+| `OPENAI_MODEL` | `gpt-5.6-sol` | OpenAI planner model. Any compatible model ID is accepted; `gpt-6-astra` and `gpt-5.6-luna` are useful alternatives |
 | `JEV_MODEL` | `jev-latest` | TypeSafe model used for action decisions |
 | `MC_HOST` | `localhost` | Minecraft server address |
 | `MC_PORT` | `25565` | Minecraft server port |
@@ -144,7 +145,7 @@ Mechanics remain bounded: pathfinding cannot dig on its own, excavation opens on
 ```text
 src/main.js       Run lifecycle, serialized decision loop, and shutdown
 src/jev.js        TypeSafe action-decision client
-src/advisor.js    Optional GPT-5.6 advisor milestone planner
+src/advisor.js    Optional configurable OpenAI milestone planner
 src/strategy.js   Fixed final objective
 src/actions.js    Generic skills, grounded targets, and execution
 src/capabilities.js Containers, trades, sleep, water, boats, farming, buckets, and coordinate movement
